@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運算思維與 Python 程式設計 - 186 題全集</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .answered-nav {
+            background-color: #3b82f6 !important;
+            color: white !important;
+        }
+        .correct-nav {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 1px #10b981;
+        }
+        .wrong-nav {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 1px #ef4444;
+        }
+        .correct-bg {
+            background-color: #f0fdf4;
+            border: 1px solid #10b981;
+        }
+        .wrong-bg {
+            background-color: #fef2f2;
+            border: 1px solid #ef4444;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 4px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+        #nav-grid::-webkit-scrollbar {
+            width: 3px;
+        }
+        #nav-grid::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-900 leading-tight">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- 左側題號導覽 -->
+        <aside class="w-20 md:w-56 bg-white shadow-xl flex flex-col border-r border-slate-200">
+            <div class="p-3 border-b bg-slate-50">
+                <h1 class="text-sm font-bold text-blue-700">題目選號</h1>
+                <div class="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+                    <span>進度: <span id="progress-text">0/186</span></span>
+                    <span id="score-text">0% 正確</span>
+                </div>
+                <div class="w-full bg-slate-200 h-1 mt-1 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+            <div id="nav-grid" class="flex-1 overflow-y-auto p-1.5 grid grid-cols-1 md:grid-cols-4 gap-1">
+                <!-- JS 自動生成 186 個按鈕 -->
+            </div>
+        </aside>
+
+        <!-- 右側題目內容 -->
+        <main class="flex-1 overflow-y-auto p-3 md:p-6 relative scroll-smooth bg-slate-100">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-3 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg md:text-xl font-black text-slate-800 uppercase tracking-tight">Python & 3D Printing 核心能力</h2>
+                        <p class="text-slate-500 text-[10px] md:text-xs">線上練習系統 · 全 186 題完整版</p>
+                    </div>
+                </header>
+
+                <div id="quiz-container" class="space-y-3 pb-32">
+                    <!-- JS 自動生成題目卡片 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 訊息提示 -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none z-50 text-xs font-bold">
+        已跳轉
+    </div>
+
+    <script>
+        // 186 題完整資料庫 (A=0, B=1, C=2, D=3)
+        const questionsData = [
+            { id: 1, q: "Python 的應用領域不包括下列哪一種？", o: ["自動控制", "大數據", "遊戲設計", "以上皆是"], a: 3 },
+            { id: 2, q: "有關 Python 語言的特性，下列何者有誤？", o: ["擴充能力強", "可以大量使用指標", "跨平台", "簡潔易讀"], a: 1 },
+            { id: 3, q: "底下 Python 程式碼的註解，下列何者是正確的？", o: ["// 註解", "/* 註解 */", "''' 註解 '''", "# 註解"], a: 3 },
+            { id: 4, q: "關於 Python 程式語言的註解，下列何者才是正確的作法？", o: ["// 之後", "/* 和 */ 之間", "空白行隔開", "# 符號之後"], a: 3 },
+            { id: 5, q: "關於各代程式語言的描述，下列何者有誤？", o: ["高階語言更符合人類", "組合語言與硬體密切相關", "機器語言是最低階", "組合語言是高階語言"], a: 3 },
+            { id: 6, q: "下列哪一種程式語言是屬於直譯式語言？", o: ["Java", "Python", "C++", "C"], a: 1 },
+            { id: 7, q: "演算法的特性不包括？", o: ["至少一個輸出", "0 個或多個輸入", "允許無窮迴路", "步驟清楚可行"], a: 2 },
+            { id: 8, q: "Python 透過哪種方式區分程式碼層級？", o: ["註解", "縮排", "大括號", "分號"], a: 1 },
+            { id: 9, q: "以下哪一個是運算思維的目標？", o: ["拆解", "模式識別", "歸納抽象化", "演算法"], a: 3 },
+            { id: 10, q: "有關 Python 變數命名與指派，下列何者有誤？", o: ["需事先宣告資料型態", "每個變數有型態", "用等號指派", "區分大小寫"], a: 0 },
+            { id: 11, q: "有關 Python 變數命名，何者有誤？", o: ["不能有空白", "支援中文", "不能用保留字", "第一個字元可以是數字"], a: 3 },
+            { id: 12, q: "Python 資料型態說明正確的是？", o: ["動態型別、強型別", "靜態型別、強型別", "動態型別、弱型別", "靜態型別、弱型別"], a: 0 },
+            { id: 13, q: "數值轉整數的函式？", o: ["count()", "int()", "float()", "str()"], a: 1 },
+            { id: 14, q: "運算式「a = 15 % 4」，變數 a 的值為？", o: ["3", "5", "4", "0"], a: 0 },
+            { id: 15, q: "有關運算子與運算式描述，何者有誤？", o: ["由運算子與元組成", "一元運算子", "「%」取小數部分", "型態以最大為主"], a: 2 },
+            { id: 16, q: "指派運算子描述何者有誤？", o: ["右指派給左", "有複合指派", "「==」是指派", "變數不必事先設定"], a: 2 },
+            { id: 17, q: "邏輯運算子描述何者有誤？", o: ["只有 True/False", "包括 and, or, not", "(48%6==0) and (24%4==0) 回傳 False", "快捷運算"], a: 2 },
+            { id: 18, q: "for/in 描述不正確者？", o: ["巢狀不可交錯", "要有範圍", "走訪項目", "預設加 2"], a: 3 },
+            { id: 19, q: "while 描述不正確者？", o: ["真時執行", "避免無窮迴圈", "進入不檢查條件", "需初始、條件與調整值"], a: 2 },
+            { id: 20, q: "for/in 預設增減值？", o: ["0", "1", "-1", "2"], a: 1 },
+            { id: 21, q: "迴圈描述不正確者？", o: ["for 內可含 for", "巢狀內外可以交錯", "條件不當會無窮", "while 會檢查條件"], a: 1 },
+            { id: 22, q: "最後 k 值為何？", code: "k=10\nwhile k<=13:\n    k += 1\nprint(k)", o: ["14", "12", "13", "10"], a: 0 },
+            { id: 23, q: "關於字串描述何者有誤？", o: ["分行顯示加入 b", "三重引號固定模式", "反斜線換行撰寫", "內容不可變"], a: 0 },
+            { id: 24, q: "分割字串函式？", o: ["len()", "strip()", "split()", "ord()"], a: 2 },
+            { id: 25, q: "回傳 ASCII 碼對應字？", o: ["ord()", "chr()", "strip()", "split()"], a: 1 },
+            { id: 26, q: "尋找字元第一個索引？", o: ["strip()", "replace", "find()", "count()"], a: 2 },
+            { id: 27, q: "關於容器資料型別何者不正確？", o: ["set 無序互異", "set 放於 [] 內", "tuple 不可變", "dict 是鍵值對"], a: 1 },
+            { id: 28, q: "關於 list 何者不正確？", o: ["類似陣列", "由逗號分隔", "不可包含不同型別", "生成式更彈性"], a: 2 },
+            { id: 29, q: "range(2, 8) 產生？", o: ["[2,3,4,5,6,7]", "[2,8]", "[2..8]", "[1..7]"], a: 0 },
+            { id: 30, q: "關於 tuple 何者不正確？", o: ["放不同型別", "有序物件", "[] 改變值", "* 複製元素"], a: 2 },
+            { id: 31, q: "關於字典何者不正確？", o: ["{} 定義", "key:value", "無法切片", "value 必不可變"], a: 3 },
+            { id: 32, q: "顯示書籍由第 2 本開始到最後，間隔 1 本？", o: ["books[2:2]", "books[::2]", "books[1::2]", "books[1:2]"], a: 2 },
+            { id: 33, q: "輸出結果？", code: "numList = [1,3,5,7,9]\nprint(8 in numList)", o: ["7", "True", "False", "None"], a: 2 },
+            { id: 34, q: "關於函式說明何者有誤？", o: ["省去重複撰寫", "縮短開發", "助於維護", "唯管道是自訂"], a: 3 },
+            { id: 35, q: "關於定義函式何者有誤？", o: ["關鍵字 def", "需縮排", "一定要傳入參數", "自動回傳 None"], a: 2 },
+            { id: 36, q: "關於函式何者有誤？", o: ["() 呼叫", "引數分位置與關鍵字", "無法預設引數", "關鍵字位置不依序"], a: 2 },
+            { id: 37, q: "關於回傳值何者有誤？", o: ["return 終止執行", "可有多個 return", "逗號分隔", "一定要有回傳值"], a: 3 },
+            { id: 38, q: "關於參數傳遞何者有誤？", o: ["串列是傳址", "區域變數適宣告區塊", "自身呼叫為遞迴", "河內塔用佇列解決"], a: 3 },
+            { id: 39, q: "產生 0.0 < n < 1.0 隨機數？", o: ["random.random()", "random.randrange()", "random.randint()", "random.seed()"], a: 0 },
+            { id: 40, q: "關於模組套件何者有誤？", o: ["模組是 .py", "多模組產套件", "__init__.py 是標記", "匯入多套件用分號"], a: 3 },
+            { id: 41, q: "避免模組同名衝突？", o: ["限制在命名空間", "不能同名", "大小寫區分", "不同指令"], a: 0 },
+            { id: 42, q: "資料型態輸入錯誤拋出？", o: ["IndexError", "TypeError", "ValueError", "SystemError"], a: 1 },
+            { id: 43, q: "數值超出範圍拋出？", o: ["IndexError", "TypeError", "OverflowError", "SystemError"], a: 2 },
+            { id: 44, q: "檔案不存在拋出？", o: ["FileNotFoundError", "TypeError", "OverflowError", "SystemError"], a: 0 },
+            { id: 45, q: "型別正確但值不正確拋出？", o: ["IndexError", "TypeError", "ValueError", "SystemError"], a: 2 },
+            { id: 46, q: "索引邊界例外拋出？", o: ["NameError", "ValueError", "IndentationError", "IndexError"], a: 3 },
+            { id: 47, q: "try/except 正確者？", o: ["无论有無皆執行", "try 捕捉例外", "except 只能一型別", "else 必執行"], a: 1 },
+            { id: 48, q: "finally 敘述正確者？", o: ["捕捉例外", "引發例外", "處理例外", "無論有無皆執行"], a: 3 },
+            { id: 49, q: "檔案描述何者有誤？", o: ["有主副檔名", "路徑用跳脫序列", "相對路徑", "「..」代表現在目錄"], a: 3 },
+            { id: 50, q: "檔案讀取方法不包括？", o: ["readlines()", "readline()", "read()", "seek()"], a: 3 },
+            { id: 51, q: "二進位檔案加入參數？", o: ["t", "m", "b", "h"], a: 2 },
+            { id: 52, q: "若不存在則建立，存在則刪除內容開啟？", o: ["w+", "w", "r+", "r"], a: 0 },
+            { id: 53, q: "程式碼出錯原因？", code: "if os.path.isfile(file):\n    content = open(file, 'r')", o: ["isfile 兩參數", "path 不在 os", "isfile 不在 path", "需匯入 os"], a: 3 },
+            { id: 54, q: "輸出結果？", code: "print(1.0 + 2.0)", o: ["3.0", "3.000000", "3", "3.0e0"], a: 0 },
+            { id: 55, q: "輸出結果？", code: "print('1.0' + '2.0')", o: ["1.02.0", "3.0", "3", "error"], a: 0 },
+            { id: 56, q: "輸出結果？", code: "print(1.0 + 2)", o: ["3.0", "3", "3.000000", "error"], a: 0 },
+            { id: 57, q: "輸出結果？", code: "print(5 / 2)", o: ["2.5", "2", "3", "2.0"], a: 0 },
+            { id: 58, q: "輸出結果？", code: "print(5 // 2)", o: ["2", "3", "2.5", "2.500000"], a: 0 },
+            { id: 59, q: "輸出結果？", code: "print(5.0 / 2)", o: ["2.5", "2.500000", "2.0", "3.0"], a: 0 },
+            { id: 60, q: "輸出結果？", code: "print(5.0 // 2.0)", o: ["2.0", "2.5", "2.500000", "3.0"], a: 0 },
+            { id: 61, q: "輸出結果？", code: "print(5 * 2)", o: ["10", "5*2", "10.0", "error"], a: 0 },
+            { id: 62, q: "輸出結果？", code: "print(5.0 * 2.0)", o: ["10.0", "10.00", "10.000000", "5.0*2.0"], a: 0 },
+            { id: 63, q: "輸出結果？", code: "print(5.0 * 'abc')", o: ["error", "abcabcabcabcabc", "5.0*'abc'", "5.0abc"], a: 0 },
+            { id: 64, q: "輸出結果？", code: "x = 5\nprint(x * 2)", o: ["10", "2x", "5", "error"], a: 0 },
+            { id: 65, q: "輸出結果？", code: "x = 5\nprint(x * 2.0)", o: ["10.0", "10.000000", "x*2.0", "2.0"], a: 0 },
+            { id: 66, q: "輸出結果？", code: "x = 5\nprint(x ** 3)", o: ["125", "15", "2", "1"], a: 0 },
+            { id: 67, q: "輸出結果？", code: "x = 9\nprint(x ** 0.5)", o: ["3.0", "9.0", "3", "4.500000"], a: 0 },
+            { id: 68, q: "輸出結果？", code: "x = 8\nprint(x ** (1/3))", o: ["2.0", "2.7", "3", "64"], a: 0 },
+            { id: 69, q: "輸出結果？", code: "x = 5.00\nprint(x % 2.00)", o: ["1.0", "1.00", "2.5", "2.500000"], a: 1 },
+            { id: 70, q: "輸出結果？", code: "x = 'A'\nprint(x == 'A')", o: ["True", "False", "1", "0"], a: 0 },
+            { id: 71, q: "輸出結果？", code: "x = 5.0\nx -= 1\nprint(x)", o: ["4.0", "4", "41", "error"], a: 0 },
+            { id: 72, q: "輸出結果？", code: "x = 5.0\nx **= 2\nprint(x)", o: ["25.0", "5.0", "2.5", "0.25"], a: 0 },
+            { id: 73, q: "輸出結果 (OR 位元運算)？", code: "x = 5 # 101\nx |= 2 # 010\nprint(x)", o: ["7", "6", "5", "4"], a: 0 },
+            { id: 74, q: "輸出結果 (AND 位元運算)？", code: "x = 5 # 101\nx &= 2 # 010\nprint(x)", o: ["0", "1", "2", "5"], a: 0 },
+            { id: 75, q: "輸出結果？", code: "a = 'Hello, World!'\nprint(a[1])", o: ["e", "H", "l", "!"], a: 0 },
+            { id: 76, q: "輸出結果？", code: "b = 'Hello, World!'\nprint(b[-5:-2])", o: ["orl", "rld", "Wor", "ld!"], a: 0 },
+            { id: 77, q: "輸出結果？", code: "b = 'hello, world!'\nprint(b.upper())", o: ["HELLO, WORLD!", "Hello, world!", "Hello, WORLD!", "Hello, world!"], a: 0 },
+            { id: 78, q: "輸出結果？", code: "a = 'Hello'\nprint(a.replace('H', 'J'))", o: ["Jello", "Hello", "J", "error"], a: 0 },
+            { id: 79, q: "輸出結果？", code: "print('Hello'.find('l'))", o: ["2", "3", "1", "0"], a: 0 },
+            { id: 80, q: "輸出結果？", code: "print('Hello'.count('l'))", o: ["2", "1", "3", "0"], a: 0 },
+            { id: 81, q: "輸出結果？", code: "print(len('Hello'))", o: ["5", "4", "6", "error"], a: 0 },
+            { id: 82, q: "輸出結果？", code: "x = '123'\nprint(x.isdigit())", o: ["True", "False", "1", "0"], a: 0 },
+            { id: 83, q: "輸出結果？", code: "x = 'abc'\nprint(x.isalpha())", o: ["True", "False", "1", "0"], a: 0 },
+            { id: 84, q: "輸出結果？", code: "x = ['a', 'b', 'c']\nprint(''.join(x))", o: ["abc", "a b c", "['a', 'b', 'c']", "error"], a: 0 },
+            { id: 85, q: "輸出結果？", code: "print('a,b,c'.split(','))", o: ["['a', 'b', 'c']", "abc", "a b c", "error"], a: 0 },
+            { id: 86, q: "輸出結果？", code: "print(int(10.5))", o: ["10", "11", "10.0", "error"], a: 0 },
+            { id: 87, q: "輸出結果？", code: "print(float(10))", o: ["10.0", "10", "10.00", "error"], a: 0 },
+            { id: 88, q: "輸出結果？", code: "print(str(10))", o: ["'10'", "10", "ten", "error"], a: 0 },
+            { id: 89, q: "輸出結果？", code: "print(abs(-5))", o: ["5", "-5", "0", "error"], a: 0 },
+            { id: 90, q: "輸出結果？", code: "print(pow(2, 3))", o: ["8", "6", "9", "error"], a: 0 },
+            { id: 91, q: "輸出結果？", code: "print(round(10.6))", o: ["11", "10", "10.0", "error"], a: 0 },
+            { id: 92, q: "輸出結果？", code: "print(round(10.4))", o: ["10", "11", "10.0", "error"], a: 0 },
+            { id: 93, q: "輸出結果？", code: "print(max(1, 5, 2))", o: ["5", "1", "2", "error"], a: 0 },
+            { id: 94, q: "輸出結果？", code: "print(min(1, 5, 2))", o: ["1", "5", "2", "error"], a: 0 },
+            { id: 95, q: "輸出結果？", code: "print(sum([1, 2, 3]))", o: ["6", "3", "1", "error"], a: 0 },
+            { id: 96, q: "輸出結果？", code: "d3={'name':'Axel','weight':'80KG'}\nd4={'weight':'75KG', 'height':'185cm'}\nd3.update(d4)\nprint(d3)", o: ["{'name': 'Axel', 'weight': '75KG', 'height': '185cm'}", "{'name': 'Axel', 'weight': '80KG'}", "{'name': 'Axel', 'height': '185cm'}", "{'name': 'Axel', 'weight': '80KG', 'height': '185cm'}"], a: 0 },
+            { id: 97, q: "輸出結果？", code: "x = [1, 2, 3]\nx.append(4)\nprint(x)", o: ["[1, 2, 3, 4]", "[4, 1, 2, 3]", "[1, 2, 3]", "error"], a: 0 },
+            { id: 98, q: "輸出結果？", code: "x = [1, 2, 3]\nx.pop()\nprint(x)", o: ["[1, 2]", "[2, 3]", "[1, 3]", "error"], a: 0 },
+            { id: 99, q: "輸出結果？", code: "x = [1, 2, 3]\nx.insert(1, 4)\nprint(x)", o: ["[1, 4, 2, 3]", "[4, 1, 2, 3]", "[1, 2, 4, 3]", "error"], a: 0 },
+            { id: 100, q: "輸出結果？", code: "x = [3, 1, 2]\nx.sort()\nprint(x)", o: ["[1, 2, 3]", "[3, 2, 1]", "[3, 1, 2]", "error"], a: 0 },
+            { id: 101, q: "輸出結果？", code: "x = [1, 2, 3]\nx.reverse()\nprint(x)", o: ["[3, 2, 1]", "[1, 2, 3]", "[1, 3, 2]", "error"], a: 0 },
+            { id: 102, q: "輸出結果？", code: "x = [1, 2, 3]\nprint(x.index(2))", o: ["1", "0", "2", "error"], a: 0 },
+            { id: 103, q: "輸出結果？", code: "x = (1, 2, 3)\nprint(x[0])", o: ["1", "0", "(1)", "error"], a: 0 },
+            { id: 104, q: "輸出結果？", code: "x = {1, 2, 2, 3}\nprint(len(x))", o: ["3", "4", "2", "error"], a: 0 },
+            { id: 105, q: "輸出結果？", code: "x = {'a': 1, 'b': 2}\nprint(x['a'])", o: ["1", "'a'", "a", "error"], a: 0 },
+            { id: 106, q: "輸出結果？", code: "x = {'a': 1, 'b': 2}\nprint(x.get('c', 0))", o: ["0", "None", "error", "c"], a: 0 },
+            { id: 107, q: "輸出結果？", code: "x = 10\nif x > 5:\n    print('A')\nelse:\n    print('B')", o: ["A", "B", "10", "error"], a: 0 },
+            { id: 108, q: "輸出結果？", code: "for i in range(3):\n    print(i, end='')", o: ["012", "123", "0123", "error"], a: 0 },
+            { id: 109, q: "輸出結果？", code: "x = 0\nwhile x < 3:\n    x += 1\nprint(x)", o: ["3", "2", "0", "error"], a: 0 },
+            { id: 110, q: "輸出結果？", code: "def f(a, b=2):\n    return a + b\nprint(f(1))", o: ["3", "1", "2", "error"], a: 0 },
+            { id: 111, q: "輸出結果？", code: "f = lambda x: x * 2\nprint(f(5))", o: ["10", "5", "25", "error"], a: 0 },
+            { id: 112, q: "輸出結果？", code: "try:\n    x = 1/0\nexcept:\n    print('E')", o: ["E", "0", "1", "error"], a: 0 },
+            { id: 113, q: "輸出結果？", code: "import math\nprint(math.floor(3.9))", o: ["3", "4", "3.0", "error"], a: 0 },
+            { id: 114, q: "輸出結果？", code: "import math\nprint(math.ceil(3.1))", o: ["4", "3", "4.0", "error"], a: 0 },
+            { id: 115, q: "輸出結果？", code: "print('A' + 'B')", o: ["AB", "A B", "error", "None"], a: 0 },
+            { id: 116, q: "輸出結果？", code: "print('A' * 3)", o: ["AAA", "A3", "A A A", "error"], a: 0 },
+            { id: 117, q: "輸出結果？", code: "print(True and False)", o: ["False", "True", "None", "error"], a: 0 },
+            { id: 118, q: "輸出結果？", code: "print(True or False)", o: ["True", "False", "None", "error"], a: 0 },
+            { id: 119, q: "輸出結果？", code: "print(not True)", o: ["False", "True", "None", "error"], a: 0 },
+            { id: 120, q: "輸出結果？", code: "x = 10\nprint(5 < x < 15)", o: ["True", "False", "10", "error"], a: 0 },
+            { id: 121, q: "輸出結果？", code: "print(10 // 3)", o: ["3", "3.33", "1", "error"], a: 0 },
+            { id: 122, q: "輸出結果？", code: "print(10 % 3)", o: ["1", "3", "0", "error"], a: 0 },
+            { id: 123, q: "輸出結果？", code: "print(type(10))", o: ["<class 'int'>", "int", "10", "error"], a: 0 },
+            { id: 124, q: "輸出結果？", code: "print(type(10.0))", o: ["<class 'float'>", "float", "10.0", "error"], a: 0 },
+            { id: 125, q: "輸出結果？", code: "print(type('10'))", o: ["<class 'str'>", "str", "10", "error"], a: 0 },
+            { id: 126, q: "輸出結果？", code: "x = [1, 2]\ny = x\ny.append(3)\nprint(x)", o: ["[1, 2, 3]", "[1, 2]", "[3]", "error"], a: 0 },
+            { id: 127, q: "輸出結果？", code: "x = 5\ndef f():\n    global x\n    x = 10\nf()\nprint(x)", o: ["10", "5", "error", "None"], a: 0 },
+            { id: 128, q: "輸出結果？", code: "print(bool(0))", o: ["False", "True", "0", "error"], a: 0 },
+            { id: 129, q: "輸出結果？", code: "print(bool(1))", o: ["True", "False", "1", "error"], a: 0 },
+            { id: 130, q: "輸出結果？", code: "print(all([True, True]))", o: ["True", "False", "None", "error"], a: 0 },
+            { id: 131, q: "輸出結果？", code: "print(any([True, False]))", o: ["True", "False", "None", "error"], a: 0 },
+            { id: 132, q: "輸出結果？", code: "print(chr(65))", o: ["A", "65", "a", "error"], a: 0 },
+            { id: 133, q: "輸出結果？", code: "print(ord('A'))", o: ["65", "A", "97", "error"], a: 0 },
+            { id: 134, q: "輸出結果？", code: "print(hex(16))", o: ["0x10", "16", "0x16", "error"], a: 0 },
+            { id: 135, q: "輸出結果？", code: "print(bin(2))", o: ["0b10", "2", "0b2", "error"], a: 0 },
+            { id: 136, q: "輸出結果？", code: "x = [i for i in range(3)]\nprint(x)", o: ["[0, 1, 2]", "[1, 2, 3]", "[0, 1, 2, 3]", "error"], a: 0 },
+            { id: 137, q: "輸出結果？", code: "x = [1, 2, 3]\nprint(x[::-1])", o: ["[3, 2, 1]", "[1, 2, 3]", "[2, 1]", "error"], a: 0 },
+            { id: 138, q: "輸出結果？", code: "x = 'Hello'\nprint(x[1:4])", o: ["ell", "Hel", "lo", "error"], a: 0 },
+            { id: 139, q: "輸出結果？", code: "print('a' in 'apple')", o: ["True", "False", "None", "error"], a: 0 },
+            { id: 140, q: "輸出結果？", code: "print(10 != 5)", o: ["True", "False", "None", "error"], a: 0 },
+            { id: 141, q: "下列何種方法可以製造出立體保齡球瓶？", o: ["利用塑性變形", "熔化材料倒進模具", "積層製造", "以上皆是"], a: 3, note: "切削、塑性變形、鑄造、積層製造皆可。" },
+            { id: 142, q: "3D 列印可用材料型態？", o: ["液態", "固態", "膠態/粉末", "以上皆是"], a: 3 },
+            { id: 143, q: "先形成薄層再堆積起來的方法？", o: ["貼皮法", "切削法", "3D 列印", "切皮法"], a: 2 },
+            { id: 144, q: "金屬粉末流動性良好，型態最好為？", o: ["球型", "不規則型", "長條型", "正立方體"], a: 0 },
+            { id: 145, q: "3D 列印中所使用的檔案格式為？", o: ["jpg", "stl", "mov", "dat"], a: 1, note: "STL 檔。" },
+            { id: 146, q: "STL 檔案以何種方式表達 3D 物件？", o: ["三角形網格", "四角形網格", "五角形網格", "混合網格"], a: 0 },
+            { id: 147, q: "STL 檔案準確度取決於？", o: ["網格密度", "網路密度", "網格生命力", "網路快慢"], a: 0 },
+            { id: 148, q: "數位製造的涵義？", o: ["傳輸智慧化", "資料數位化", "檔案圖像化", "使用數位刀具"], a: 1 },
+            { id: 149, q: "3D 列印受歡迎原因？", o: ["物理形狀皆可製作", "時間較短", "多種原料", "以上皆是"], a: 3 },
+            { id: 150, q: "生產不用模具、製作速快、結構複雜可一次成型？", o: ["3D 列印", "CNC 加工", "模造技術", "塑性變形"], a: 0 },
+            { id: 151, q: "3D 列印技術又稱？", o: ["積層製造", "減量製造", "等量製造", "傳統製造"], a: 0 },
+            { id: 152, q: "3D 列印的優點？", o: ["客製化", "減少浪費", "複雜結構", "以上皆是"], a: 3 },
+            { id: 153, q: "3D 列印又稱積層製造，屬於？", o: ["慢速成型", "中速成型", "快速成型", "等速成型"], a: 2 },
+            { id: 154, q: "3D 列印技術不包括？", o: ["FDM", "SLA", "CNC", "SLS"], a: 2 },
+            { id: 155, q: "3D 列印屬於何種加工方式？", o: ["傳統切削", "非傳統切削", "積層製造", "以上皆是"], a: 2 },
+            { id: 156, q: "FDM 技術主要材料型態？", o: ["線材", "粉末", "液體", "氣體"], a: 0 },
+            { id: 157, q: "SLA 技術主要原理？", o: ["光固化", "熱熔化", "黏合", "切割"], a: 0 },
+            { id: 158, q: "3D 列印可使用材料？", o: ["塑膠", "金屬", "陶瓷", "以上皆是"], a: 3 },
+            { id: 159, q: "大量普及後受較大衝擊的產業？", o: ["製造業", "服務業", "旅遊業", "畜牧業"], a: 0 },
+            { id: 160, q: "3D 列印在醫療的應用？", o: ["人工骨骼", "手術導版", "齒模", "以上皆是"], a: 3 },
+            { id: 161, q: "下列關於 3D 列印敘述何者正確？", o: ["FDM 熔融沉積", "LOM 膠皮加工", "3DP 噴墨黏粉", "以上皆是"], a: 3 },
+            { id: 162, q: "FDM 常用材料？", o: ["鐵金屬", "塑膠 (ABS/PLA)", "木材", "石材"], a: 1 },
+            { id: 163, q: "3D 列印在航太的應用？", o: ["輕量化零件", "複雜引擎組件", "原型開發", "以上皆是"], a: 3 },
+            { id: 164, q: "積層製造與傳統製造相比？", o: ["浪費材料較少", "成型速度較慢", "適合客製化", "以上皆是"], a: 3 },
+            { id: 165, q: "何年正式定義為積層製造 (AM)？", o: ["2006", "2007", "2008", "2009"], a: 3 },
+            { id: 166, q: "積層製造是由何種組織定義？", o: ["AISI", "ANSI", "ASTM", "ASE"], a: 2 },
+            { id: 167, q: "利用雷射將塑料、紙薄膜切開再黏合？", o: ["FDM", "3DP", "LOM", "SLA"], a: 2 },
+            { id: 168, q: "哪項不是 ASTM 定義的 7 大類？", o: ["EBM", "ME", "PBF", "DED"], a: 0 },
+            { id: 169, q: "SLS 技術材料？", o: ["粉末", "液體", "線材", "膠帶"], a: 0 },
+            { id: 170, q: "關於 3D 列印敘述何者為非？", o: ["形狀複雜成本不增", "多樣化成本不增", "組合件需分開製造", "交期縮短"], a: 2, note: "組合件可一次印出。" },
+            { id: 171, q: "3D 列印切片軟體的功能？", o: ["產生 G-code", "設定填充率", "設定支撐", "以上皆是"], a: 3 },
+            { id: 172, q: "FDM 列印時發生翹曲的原因？", o: ["冷卻太快", "溫度太高", "平台不平", "速度太快"], a: 0 },
+            { id: 173, q: "3D 列印需要支撐結構的原因？", o: ["懸空部分", "增加重量", "美觀", "節省材料"], a: 0 },
+            { id: 174, q: "下列何者為 3D 列印後處理？", o: ["拆除支撐", "打磨", "上漆", "以上皆是"], a: 3 },
+            { id: 175, q: "無需支撐且可彩色列印？", o: ["SLA", "FDM", "3DP", "SLS"], a: 2 },
+            { id: 176, q: "使用 Ti, Fe, Cu 粉末材料？", o: ["SLS", "SLA", "FDM", "LOM"], a: 0 },
+            { id: 177, q: "第一台 3D 列印機誕生於？", o: ["1985", "1986", "1987", "1988"], a: 1 },
+            { id: 178, q: "何國視 3D 列印為重振製造業支柱？", o: ["日本", "英國", "美國", "德國"], a: 2 },
+            { id: 179, q: "何者不是創用 CC 四要素？", o: ["姓名標示", "商業性", "禁止改作", "相同方式分享"], a: 1, note: "應為非商業性。" },
+            { id: 180, q: "3D 列印牽涉之智財權？", o: ["著作權", "專利權", "商標權", "以上皆是"], a: 3 },
+            { id: 181, q: "3D 列印程式本身受何種保護？", o: ["著作權", "專利權", "商標權", "以上皆非"], a: 0 },
+            { id: 182, q: "創用 CC 姓名標示標章縮寫？", o: ["BY", "NC", "ND", "SA"], a: 0 },
+            { id: 183, q: "將他人檔案複製下載涉及？", o: ["重製權與公開傳輸", "商標權", "使用權", "以上皆非"], a: 0 },
+            { id: 184, q: "創用 CC 非商業性縮寫？", o: ["NC", "BY", "ND", "SA"], a: 0 },
+            { id: 185, q: "創用 CC 禁止改作縮寫？", o: ["ND", "BY", "NC", "SA"], a: 0 },
+            { id: 186, q: "如何保障 3D 列印創作者權益？", o: ["申請著作權保護", "隨興而為", "找偵探", "報告老師"], a: 0 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const navGrid = document.getElementById('nav-grid');
+        const toast = document.getElementById('toast');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreText = document.getElementById('score-text');
+        
+        let answeredCount = 0;
+        let correctCount = 0;
+
+        function init() {
+            questionsData.forEach((item) => {
+                // 生成導覽按鈕
+                const navBtn = document.createElement('button');
+                navBtn.id = `nav-${item.id}`;
+                navBtn.className = "h-6 w-full flex items-center justify-center bg-white border border-slate-200 rounded text-[10px] font-bold hover:border-blue-400 hover:text-blue-600 transition-all active:scale-95";
+                navBtn.innerText = item.id;
+                navBtn.onclick = () => scrollToQuestion(item.id);
+                navGrid.appendChild(navBtn);
+
+                // 生成題目卡片
+                const qCard = document.createElement('div');
+                qCard.id = `q-${item.id}`;
+                qCard.className = "bg-white p-3 md:p-4 rounded shadow-sm border border-slate-200 transition-all hover:shadow-md";
+                
+                let codeHtml = item.code ? `<pre><code>${item.code}</code></pre>` : "";
+                
+                qCard.innerHTML = `
+                    <div class="flex items-start gap-2 mb-2">
+                        <span class="flex-shrink-0 mt-0.5 bg-slate-800 text-white px-1.5 py-0.5 rounded text-[9px] font-black tracking-tighter">Q${item.id}</span>
+                        <h3 class="text-sm md:text-base font-bold text-slate-800 leading-tight">${item.q}</h3>
+                    </div>
+                    ${codeHtml}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mt-2">
+                        ${item.o.map((opt, i) => `
+                            <button onclick="checkAnswer(${item.id}, ${i}, ${item.a})" 
+                                    id="opt-${item.id}-${i}"
+                                    class="option-btn group flex items-center p-2 border border-slate-100 rounded hover:border-blue-200 hover:bg-blue-50 transition-all text-left text-[11px] md:text-xs">
+                                <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center rounded border border-slate-200 mr-2 text-[10px] font-black group-hover:border-blue-400 group-hover:text-blue-600 uppercase">${String.fromCharCode(65 + i)}</span>
+                                <span class="text-slate-700 font-medium">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="result-${item.id}" class="hidden mt-2 p-2.5 rounded border-l-4 transform animate-in slide-in-from-bottom-1 duration-200">
+                        <p id="feedback-${item.id}" class="text-[11px] font-black mb-1"></p>
+                        <div class="text-[10px] text-slate-800 font-bold">正確答案：${String.fromCharCode(65 + item.a)}</div>
+                        ${item.note ? `<div class="mt-1.5 pt-1.5 border-t border-black/5 text-[10px] text-slate-600 leading-snug"><span class="font-bold text-slate-800">解析：</span>${item.note}</div>` : ""}
+                    </div>
+                `;
+                quizContainer.appendChild(qCard);
+            });
+        }
+
+        function scrollToQuestion(id) {
+            const el = document.getElementById(`q-${id}`);
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500'), 1500);
+
+            toast.innerText = `已跳轉至 Q${id}`;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 1000);
+        }
+
+        function checkAnswer(qId, selectedIdx, correctIdx) {
+            const navBtn = document.getElementById(`nav-${qId}`);
+            if (navBtn.classList.contains('answered-nav')) return;
+
+            answeredCount++;
+            navBtn.classList.add('answered-nav');
+
+            const resultDiv = document.getElementById(`result-${qId}`);
+            const feedback = document.getElementById(`feedback-${qId}`);
+
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`opt-${qId}-${i}`);
+                btn.disabled = true;
+                if (i === correctIdx) {
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                    btn.querySelector('span').classList.add('border-green-500', 'text-green-600', 'bg-white');
+                } else if (i === selectedIdx) {
+                    btn.classList.add('border-red-400', 'bg-red-50');
+                    btn.querySelector('span').classList.add('border-red-400', 'text-red-500', 'bg-white');
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            }
+
+            resultDiv.classList.remove('hidden');
+            if (selectedIdx === correctIdx) {
+                correctCount++;
+                feedback.innerText = "✓ 正確";
+                feedback.className = "text-green-700 text-[11px] font-black mb-1";
+                resultDiv.classList.add('correct-bg');
+                navBtn.classList.add('correct-nav');
+            } else {
+                feedback.innerText = "✗ 錯誤";
+                feedback.className = "text-red-700 text-[11px] font-black mb-1";
+                resultDiv.classList.add('wrong-bg');
+                navBtn.classList.add('wrong-nav');
+            }
+
+            const percent = (answeredCount / 186) * 100;
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = `${answeredCount}/186`;
+            
+            const scorePercent = Math.round((correctCount / answeredCount) * 100);
+            scoreText.innerText = `${scorePercent}% 正確`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
